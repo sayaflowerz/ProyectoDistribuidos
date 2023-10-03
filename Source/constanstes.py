@@ -13,3 +13,9 @@ PROXY_CANAL: Canal = {
     'subscribers' : 5555,
     'publishers' : 5556,
 }
+
+RANGOS: dict [str,tuple[float,float]] = {
+    'Temperatura' : (68,89),
+    'PH' : (6.0,8.0),
+    'Oxigeno' : (2,11)
+}
