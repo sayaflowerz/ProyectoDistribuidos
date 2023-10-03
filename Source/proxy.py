@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import zmq
+from constanstes import PROXY_CANAL
 
 
 def main():
@@ -10,11 +11,11 @@ def main():
 
     # Socket facing producers
     frontend = context.socket(zmq.XPUB)
-    frontend.bind("tcp://*:5559")
+    frontend.bind(f"tcp://*:{PROXY_CANAL['subscribers']}")
 
     # Socket facing consumers
     backend = context.socket(zmq.XSUB)
-    backend.bind("tcp://*:5560")
+    backend.bind(f"tcp://*:{PROXY_CANAL['publishers']}")
 
     zmq.proxy(frontend, backend)
 
