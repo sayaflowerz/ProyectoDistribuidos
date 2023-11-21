@@ -1,28 +1,42 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+import asyncio
+import uuid
+import warnings
+import zmq,zmq.asyncio
 
-import zmq
 from constanstes import PROXY_CANAL
+from Health_helper import Suscribe_Answer, autenticacion
+
+def titulo() ->None:
+    print('--------- Proxy de sensores ---------')
+    print(f'IP del proxy: {PROXY_CANAL["host"]}')
+    print(f'Escuchando información del puerto: {PROXY_CANAL["publishers"]}')
+    print(f'Publicando información al puerto: {PROXY_CANAL["subscribers"]}')
+    print('-\n')
 
 
-def main():
+async def go() ->None:
+    titulo()
+
+    _id = str(uuid.uuid4())
 
     context = zmq.Context()
 
-    # Socket facing producers
-    frontend = context.socket(zmq.XPUB)
-    frontend.bind(f"tcp://*:{PROXY_CANAL['subscribers']}")
+    f_socket = context.socket(zmq.XPUB)
+    f_socket.connect(f'tcp://*:{PROXY_CANAL["subscribers"]}')
 
-    # Socket facing consumers
-    backend = context.socket(zmq.XSUB)
-    backend.bind(f"tcp://*:{PROXY_CANAL['publishers']}")
+    b_socket = context.socket(zmq.XSUB)
+    b_socket.connect(f'tcp://*:{PROXY_CANAL["publishers"]}')
 
-    zmq.proxy(frontend, backend)
+    zmq.proxy(f_socket,b_socket)
 
-    # We never get here…
-    frontend.close()
-    backend.close()
+    f_socket.close()
+    b_socket.close()
     context.term()
 
-if __name__ == "__main__":
+def main():
+    asyncio.run(go())
+    
+
+if __name__ == '__main__':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     main()
