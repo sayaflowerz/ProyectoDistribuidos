@@ -80,7 +80,7 @@ async def go() ->None:
                     bytes(str(hora), 'utf-8')
                 ])
         else:
-            print(f'Error : {json_obj['message']}')
+            print(f'Error : {json_obj["message"]}')
 
     ...
 

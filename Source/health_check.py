@@ -24,7 +24,7 @@ async def escuchar_aut(context: zmq.asyncio.Context) -> None:
     
     socket_a = context.socket(zmq.REP)
 
-    socket_a.bind(f'tcp://*:{HEALTH_CHECK_CANAL['respuesta']}')
+    socket_a.bind(f'tcp://*:{HEALTH_CHECK_CANAL["respuesta"]}')
 
     while True:
         res = await socket_a.recv_multipart()
@@ -77,8 +77,8 @@ async def go() -> None:
         for m in monitores:
 
             if m['status'] != 'ok':
-                print(f'El monitor {m['id']} ha fallado')
-                print(f'Creando un nuevo monitor de {m['Tipo_s']}como respaldo...')
+                print(f'El monitor {m["id"]} ha fallado')
+                print(f'Creando un nuevo monitor de {m["Tipo_s"]}como respaldo...')
                 monitores.remove(m)
                 crear_monitor(m['Tipo_s'])
 
