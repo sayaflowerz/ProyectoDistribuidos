@@ -4,12 +4,21 @@ version = "0.1.0"
 description = ""
 authors = ["Michael Gonzalez <michaeljoelgd@gmail.com>"]
 readme = "README.md"
+packages = [{include = "sistema_calidad_agua"}]
+
+[tool.poetry.scripts]
+sensor = "sistema_calidad_agua.sensor:main"
+monitor = "sistema_calidad_agua.monitor:main"
+proxy = "sistema_calidad_agua.proxy:main"
+db_manager = "sistema_calidad_agua.db_manager:main"
+sistema_calidad_agua = "sistema_calidad_agua.sistema_calidad:main"
+health_check = "sistema_calidad_agua.health_check:main"
 
 [tool.poetry.dependencies]
 python = "^3.11"
 pyzmq = "^25.1.1"
 argparse = "^1.4.0"
-tornado = "^6.3.3"
+tornado = ">=6.1"
 
 
 [build-system]
