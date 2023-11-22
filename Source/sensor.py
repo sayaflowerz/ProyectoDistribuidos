@@ -20,6 +20,7 @@ def titulo(tipo: str)-> None:
 async def go()-> None:
     
     args = comando_sensor.parse_args()
+
     tipo = args.tipo_sensor
     config = leer_archivo_config(args.config)
     tiempo = args.tiempo
@@ -41,7 +42,7 @@ async def go()-> None:
 
 
 
-def main():
+def main() ->None:
     asyncio.run(go())
 
 if __name__ == "__main__":

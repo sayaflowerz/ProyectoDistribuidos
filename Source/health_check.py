@@ -56,7 +56,7 @@ async def escuchar_aut(context: zmq.asyncio.Context) -> None:
             socket_a.send(b'OK')
         
 def crear_monitor(Tipo: str) -> None:
-    command = f'python ProyectoDistribuidos/Source/monitor.py -s {Tipo}'
+    command = f'python Source/monitor.py -s {Tipo}'
 
     threading.Thread(target=lambda: subprocess.run(command)).start()
 
@@ -70,7 +70,7 @@ async def go() -> None:
 
     socket_hc = context.socket(zmq.PUB)
 
-    socket_hc.bind(f'tcp//*:{HEALTH_CHECK_CANAL["entrada"]}')
+    socket_hc.bind(f'tcp://*:{HEALTH_CHECK_CANAL["entrada"]}')
 
     while True:
 

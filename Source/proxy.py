@@ -1,7 +1,8 @@
 import asyncio
 import uuid
 import warnings
-import zmq,zmq.asyncio
+import zmq
+import zmq.asyncio
 
 from constanstes import PROXY_CANAL
 from Health_helper import Suscribe_Answer, autenticacion
@@ -22,18 +23,18 @@ async def go() ->None:
     context = zmq.Context()
 
     f_socket = context.socket(zmq.XPUB)
-    f_socket.connect(f'tcp://*:{PROXY_CANAL["subscribers"]}')
+    f_socket.bind(f'tcp://*:{PROXY_CANAL["subscribers"]}')
 
     b_socket = context.socket(zmq.XSUB)
-    b_socket.connect(f'tcp://*:{PROXY_CANAL["publishers"]}')
+    b_socket.bind(f'tcp://*:{PROXY_CANAL["publishers"]}')
 
-    zmq.proxy(f_socket,b_socket)
+    zmq.proxy(f_socket, b_socket)
 
     f_socket.close()
     b_socket.close()
     context.term()
 
-def main():
+def main()-> None:
     asyncio.run(go())
     
 

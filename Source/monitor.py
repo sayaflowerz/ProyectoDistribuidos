@@ -5,7 +5,8 @@ import asyncio
 import uuid
 import warnings
 import json
-import zmq,zmq.asyncio
+import zmq
+import zmq.asyncio
 
  
 from constanstes import PROXY_CANAL, DB_CANAL, CALIDAD_CANAL
@@ -38,11 +39,13 @@ async def go() ->None:
 
     await autenticacion(context, _id, tipo)
 
+    asyncio.create_task(Suscribe_Answer(context, _id))
+
 #Proxy
 
     socket_sensores = context.socket(zmq.SUB)
-    socket_sensores.connect(f'tcp//{PROXY_CANAL["host"]}:{PROXY_CANAL["subscribers"]}')
-    socket_sensores.setsockopt(zmq.SUBSCRIBE, bytes (tipo, 'utf-8'))
+    socket_sensores.connect(f'tcp://{PROXY_CANAL["host"]}:{PROXY_CANAL["subscribers"]}')
+    socket_sensores.setsockopt(zmq.SUBSCRIBE, bytes(tipo, 'utf-8'))
 
 #Sistema
 
@@ -53,8 +56,8 @@ async def go() ->None:
 
         mensaje = await socket_sensores.recv_multipart()
 
-        valor = float(mensaje[0].decode('uft-8').split()[1])
-        hora = float(mensaje[0].decode('uft-8').split()[2])
+        valor = float(mensaje[0].decode('utf-8').split()[1])
+        hora = float(mensaje[0].decode('utf-8').split()[2])
 
         socket_base = context.socket(zmq.REQ)
         socket_base.connect(f'tcp://{DB_CANAL["host"]}:{DB_CANAL["port"]}')
@@ -82,9 +85,8 @@ async def go() ->None:
         else:
             print(f'Error : {json_obj["message"]}')
 
-    ...
 
-def main():
+def main()-> None:
     asyncio.run(go())
 
 
