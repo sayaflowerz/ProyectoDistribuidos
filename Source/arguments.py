@@ -32,8 +32,8 @@ comando_sensor.add_argument(
 
 comando_monitor.add_argument(
     '-s',
-    '--tipo-sensor',
+    '--tipo-monitor',
     type=str,
-    help='Tipo de sensor',
+    help='Tipo de monitor',
     required=True
 )
