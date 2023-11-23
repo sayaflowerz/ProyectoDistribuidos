@@ -14,10 +14,10 @@ from .constants import HEALTH_CHECK_SOCKET
 
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="zmq.*")
 
-fails: list[dict[str, Any]] = []
+nodes: list[dict[str, Any]] = []
 
 
-def titulo() -> None:
+def print_title() -> None:
     print('----- Health check server -----')
     print(f'IP del health check server: {HEALTH_CHECK_SOCKET["host"]}')
     print(f'Escuchando información en el puerto: {HEALTH_CHECK_SOCKET["port_res"]}')
@@ -25,13 +25,13 @@ def titulo() -> None:
     print('-------------------------------\n')
 
 
-async def escuchar_autenticacion(context: zmq.asyncio.Context) -> None:
-    socket_autenticacion = context.socket(zmq.REP)
+async def listen_auth(context: zmq.asyncio.Context) -> None:
+    socket_auth = context.socket(zmq.REP)
 
-    socket_autenticacion.bind(f'tcp://*:{HEALTH_CHECK_SOCKET["port_res"]}')
+    socket_auth.bind(f'tcp://*:{HEALTH_CHECK_SOCKET["port_res"]}')
 
     while True:
-        res = await socket_autenticacion.recv_multipart()
+        res = await socket_auth.recv_multipart()
 
         json_obj = json.loads(res[0])
 
@@ -43,26 +43,26 @@ async def escuchar_autenticacion(context: zmq.asyncio.Context) -> None:
 
             assert json_obj['type'] in ['monitor', 'proxy', 'db_manager']
 
-            fails.append(json_obj)
+            nodes.append(json_obj)
             print(f'Nodo {json_obj["id"]} de tipo {json_obj["type"]} creado')
 
-            socket_autenticacion.send(b'OK')
+            socket_auth.send(b'OK')
         elif json_obj['req'] == 'health_check':
             _id = json_obj['id']
 
-            filtered_fails = list(
-                filter(lambda node: node['id'] == _id, fails))
+            filtered_nodes = list(
+                filter(lambda node: node['id'] == _id, nodes))
 
-            assert len(filtered_fails) == 1
+            assert len(filtered_nodes) == 1
 
-            filtered_fails[0]['status'] = 'ok'
+            filtered_nodes[0]['status'] = 'ok'
 
             print(f'Nodo {_id} funcionando correctamente')
 
-            socket_autenticacion.send(b'OK')
+            socket_auth.send(b'OK')
 
 
-def crear_proceso(node_type: str, flags: Optional[dict[str, str]] = None) -> None:
+def create_node(node_type: str, flags: Optional[dict[str, str]] = None) -> None:
     command = f'poetry run {node_type}'
     
     if flags:
@@ -73,11 +73,11 @@ def crear_proceso(node_type: str, flags: Optional[dict[str, str]] = None) -> Non
 
 
 async def run() -> None:
-    titulo()
+    print_title()
 
     context = zmq.asyncio.Context()
 
-    asyncio.create_task(escuchar_autenticacion(context))
+    asyncio.create_task(listen_auth(context))
 
     socket_health_check = context.socket(zmq.PUB)
 
@@ -85,7 +85,7 @@ async def run() -> None:
 
 
     while True:
-        for node in fails:
+        for node in nodes:
             node['status'] = 'not ok'
 
         print('Revisando nodos...')
@@ -95,12 +95,12 @@ async def run() -> None:
 
         await asyncio.sleep(10)
 
-        for node in fails:
+        for node in nodes:
             if node['status'] != 'ok':
                 print(f'El nodo {node["id"]} no está funcionando correctamente')
                 print(f'Creando nodo {node["type"]}...')
-                fails.remove(node)
-                crear_proceso(node['type'], node.get('flags'))
+                nodes.remove(node)
+                create_node(node['type'], node.get('flags'))
 
 def main() -> None:
     asyncio.run(run())

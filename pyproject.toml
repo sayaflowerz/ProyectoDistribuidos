@@ -10,7 +10,7 @@ packages = [{include = "sistema_calidad_agua"}]
 sensor = "sistema_calidad_agua.sensor:main"
 monitor = "sistema_calidad_agua.monitor:main"
 proxy = "sistema_calidad_agua.proxy:main"
-DB = "sistema_calidad_agua.DB:main"
+db_manager = "sistema_calidad_agua.db_manager:main"
 sistema_calidad_agua = "sistema_calidad_agua.sistema_calidad:main"
 health_check = "sistema_calidad_agua.health_check:main"
 

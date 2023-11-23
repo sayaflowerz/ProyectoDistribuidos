@@ -13,7 +13,7 @@ from .helpers import health_check, auth
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="zmq.*")
 
 
-def titulo() -> None:
+def print_title() -> None:
     print('--------- Proxy de sensores ---------')
     print(f'IP del proxy: {PROXY_SOCKET["host"]}')
     print(f'Escuchando información del puerto: {PROXY_SOCKET["backend_port"]}')
@@ -22,22 +22,26 @@ def titulo() -> None:
 
 
 async def run() -> None:
-    titulo()
+    print_title()
 
     _id = str(uuid.uuid4())
 
     context = zmq.Context()
 
-    socket_front = context.socket(zmq.XPUB)
-    socket_front.bind(f'tcp://*:{PROXY_SOCKET["frontend_port"]}')
+    # await auth(context, _id, 'proxy')
 
-    socket_back = context.socket(zmq.XSUB)
-    socket_back.bind(f'tcp://*:{PROXY_SOCKET["backend_port"]}')
+    # asyncio.create_task(health_check(context, _id))
 
-    zmq.proxy(socket_front, socket_back)
+    frontend_socket = context.socket(zmq.XPUB)
+    frontend_socket.bind(f'tcp://*:{PROXY_SOCKET["frontend_port"]}')
 
-    socket_front.close()
-    socket_back.close()
+    backend_socket = context.socket(zmq.XSUB)
+    backend_socket.bind(f'tcp://*:{PROXY_SOCKET["backend_port"]}')
+
+    zmq.proxy(frontend_socket, backend_socket)
+
+    frontend_socket.close()
+    backend_socket.close()
     context.term()
 
 
