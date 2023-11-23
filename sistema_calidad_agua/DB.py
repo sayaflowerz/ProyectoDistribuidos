@@ -16,47 +16,46 @@ from .constants import DB_PATH, DB_SOCKET
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="zmq.*")
 
 
-def print_title() -> None:
+def titulo() -> None:
     print('------ Gestor de base de datos ------')
     print(f'IP de la base de datos: {DB_SOCKET["host"]}')
     print(f'Escuchando información en el puerto: {DB_SOCKET["port"]}')
     print('--------------------------------------\n')
 
 
-def write_to_db(data: dict[str, Any]) -> None:
-    '''Write data to database.'''
+def escribir(data: dict[str, Any]) -> None:
+
 
     with open(DB_PATH, 'w') as f:
         json.dump(data, f)
 
 
-def read_from_db() -> dict[str, Any]:
-    '''Read data from database.'''
+def leer() -> dict[str, Any]:
+
 
     with open(DB_PATH, 'r') as f:
         return json.load(f)
 
 
-def write_valid_info(type_sensor: str, value: float, timestamp: float = time.time()) -> None:
-    '''Write valid data to database.'''
+def info_valida(type_sensor: str, value: float, timestamp: float = time.time()) -> None:
 
     if value < 0:
         raise ValueError(f'Valor inválido: {value}')
 
-    data = read_from_db()
+    data = leer()
 
     data[type_sensor].append({
         'value': value,
         'timestamp': timestamp
     })
 
-    write_to_db(data)
+    escribir(data)
 
 
 async def run() -> None:
     _id = str(uuid.uuid4())
 
-    print_title()
+    titulo()
 
     context = zmq.asyncio.Context()
 
@@ -76,7 +75,7 @@ async def run() -> None:
         try:
             assert isinstance(json_obj, dict)
 
-            write_valid_info(json_obj['type_sensor'],
+            info_valida(json_obj['type_sensor'],
                              json_obj['value'], json_obj['timestamp'])
 
             socket.send_json({'status': 'ok'})

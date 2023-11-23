@@ -1,6 +1,7 @@
 
 from typing import TypedDict
 
+DB_PATH = 'sistema_calidad_agua/db/data.json'
 
 Socket = TypedDict('Socket', {
     'host': str,

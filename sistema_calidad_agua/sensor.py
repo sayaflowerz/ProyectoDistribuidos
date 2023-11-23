@@ -11,13 +11,13 @@ from .constants import sensor_parser, SensorType, SensorValues, PROXY_SOCKET
 from .helpers import read_config_file, get_sensor_value
 
 
-def print_title(sensor_type: SensorType) -> None:
+def titulo(sensor_type: SensorType) -> None:
     print(f'----- Sensor de calidad de agua: {sensor_type.value} -----')
     print(f'Publicando información a la dirección: {PROXY_SOCKET["host"]}:{PROXY_SOCKET["backend_port"]}')
     print('--------------------------------------\n')
 
 
-def get_args(args: Namespace) -> tuple[str, int, dict[SensorValues, float]]:
+def argumentos(args: Namespace) -> tuple[str, int, dict[SensorValues, float]]:
     tipo_sensor: SensorType
 
     try:
@@ -26,7 +26,7 @@ def get_args(args: Namespace) -> tuple[str, int, dict[SensorValues, float]]:
         print(f"Tipo de sensor '{args.tipo_sensor}' inválido")
         sys.exit(1)
 
-    print_title(tipo_sensor)
+    titulo(tipo_sensor)
 
     tiempo: int = args.tiempo
     config = read_config_file(args.config)
@@ -35,7 +35,7 @@ def get_args(args: Namespace) -> tuple[str, int, dict[SensorValues, float]]:
 
 
 async def run() -> None:
-    tipo_sensor, tiempo, config = get_args(sensor_parser.parse_args())
+    tipo_sensor, tiempo, config = argumentos(sensor_parser.parse_args())
 
     context = zmq.asyncio.Context()
     socket = context.socket(zmq.PUB)
